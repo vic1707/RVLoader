@@ -12,7 +12,7 @@ include $(DEVKITPPC)/wii_rules
 # Must be integers
 RVLOADERVERSION_MAJOR	:= 2
 RVLOADERVERSION_MINOR	:= 2
-RVLOADERVERSION_NAME	:= -unofficial.1
+RVLOADERVERSION_NAME	:= -unofficial.2
 
 LINKER_SCRIPT			:= rvloader.ld
 
