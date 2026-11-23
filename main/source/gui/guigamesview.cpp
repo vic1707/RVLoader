@@ -1,6 +1,7 @@
 #include <gccore.h>
 #include <libgui.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <lua.hpp>
 #include <stdexcept>
 #include "titles.h"
@@ -102,6 +103,7 @@ void GuiGamesView::initLUA() {
         {"getGamesType", lua_getGamesType},
         {"bootGame", lua_bootGame},
         {"openGameConfig", lua_openGameConfig},
+        {"openDefaultsConfig", lua_openDefaultsConfig},
         {"saveGameConfig", lua_saveGameConfig},
         {"setGameConfigValue", lua_setGameConfigValue},
         {"getGameConfigValue", lua_getGameConfigValue},
@@ -276,6 +278,8 @@ void GuiGamesView::openGameConfig(u32 idx) {
     lua_pop(L, 1);
     GameContainer& gc = gamesList->at(idx);
 
+    editingDefaults = false;
+
     //Built-in defaults, overridden by the optional media defaults file
     Config builtinConfig;
     getBuiltinDefaults(titlesType, builtinConfig);
@@ -306,21 +310,45 @@ void GuiGamesView::openGameConfig(u32 idx) {
     gameConfig.merge(inheritedConfig);
     gameConfig.merge(gameOverrides);
 
-    if (titlesType == GC_GAME) {
-        memset(gcpMap, 0, sizeof(int) * GCP_MAP_N_BUTTONS);
-        gameConfig.getValue("GCPMap_A", &gcpMap[GCP_MAP_BUTTON_A_ID]);
-        gameConfig.getValue("GCPMap_B", &gcpMap[GCP_MAP_BUTTON_B_ID]);
-        gameConfig.getValue("GCPMap_X", &gcpMap[GCP_MAP_BUTTON_X_ID]);
-        gameConfig.getValue("GCPMap_Y", &gcpMap[GCP_MAP_BUTTON_Y_ID]);
-        gameConfig.getValue("GCPMap_UP", &gcpMap[GCP_MAP_BUTTON_DU_ID]);
-        gameConfig.getValue("GCPMap_DOWN", &gcpMap[GCP_MAP_BUTTON_DD_ID]);
-        gameConfig.getValue("GCPMap_RIGHT", &gcpMap[GCP_MAP_BUTTON_DR_ID]);
-        gameConfig.getValue("GCPMap_LEFT", &gcpMap[GCP_MAP_BUTTON_DL_ID]);
-        gameConfig.getValue("GCPMap_Z", &gcpMap[GCP_MAP_BUTTON_Z_ID]);
-        gameConfig.getValue("GCPMap_R", &gcpMap[GCP_MAP_BUTTON_RD_ID]);
-        gameConfig.getValue("GCPMap_L", &gcpMap[GCP_MAP_BUTTON_LD_ID]);
-        gameConfig.getValue("GCPMap_START", &gcpMap[GCP_MAP_BUTTON_ST_ID]);
-    }
+    loadGCPMapFromConfig();
+}
+
+void GuiGamesView::openDefaultsConfig() {
+    //Editing the media defaults: the built-in defaults are inherited
+    //and the media defaults file holds the overrides
+    editingDefaults = true;
+
+    inheritedConfig.close();
+    getBuiltinDefaults(titlesType, inheritedConfig);
+
+    gameConfigPath = getMediaDefaultsPath(titlesType);
+    gameOverrides.close();
+    gameOverrides.open(gameConfigPath.c_str());
+
+    gameConfig.close();
+    gameConfig.merge(inheritedConfig);
+    gameConfig.merge(gameOverrides);
+
+    loadGCPMapFromConfig();
+}
+
+void GuiGamesView::loadGCPMapFromConfig() {
+    if (titlesType != GC_GAME)
+        return;
+
+    memset(gcpMap, 0, sizeof(int) * GCP_MAP_N_BUTTONS);
+    gameConfig.getValue("GCPMap_A", &gcpMap[GCP_MAP_BUTTON_A_ID]);
+    gameConfig.getValue("GCPMap_B", &gcpMap[GCP_MAP_BUTTON_B_ID]);
+    gameConfig.getValue("GCPMap_X", &gcpMap[GCP_MAP_BUTTON_X_ID]);
+    gameConfig.getValue("GCPMap_Y", &gcpMap[GCP_MAP_BUTTON_Y_ID]);
+    gameConfig.getValue("GCPMap_UP", &gcpMap[GCP_MAP_BUTTON_DU_ID]);
+    gameConfig.getValue("GCPMap_DOWN", &gcpMap[GCP_MAP_BUTTON_DD_ID]);
+    gameConfig.getValue("GCPMap_RIGHT", &gcpMap[GCP_MAP_BUTTON_DR_ID]);
+    gameConfig.getValue("GCPMap_LEFT", &gcpMap[GCP_MAP_BUTTON_DL_ID]);
+    gameConfig.getValue("GCPMap_Z", &gcpMap[GCP_MAP_BUTTON_Z_ID]);
+    gameConfig.getValue("GCPMap_R", &gcpMap[GCP_MAP_BUTTON_RD_ID]);
+    gameConfig.getValue("GCPMap_L", &gcpMap[GCP_MAP_BUTTON_LD_ID]);
+    gameConfig.getValue("GCPMap_START", &gcpMap[GCP_MAP_BUTTON_ST_ID]);
 }
 
 void GuiGamesView::setGameConfigValue(const char* key, int val) {
@@ -336,7 +364,10 @@ void GuiGamesView::saveGameConfig() {
     Config toSave;
     toSave.merge(gameOverrides);
     toSave.removeEntriesEqualTo(inheritedConfig);
-    toSave.setValue(GAME_CONFIG_VERSION_KEY, GAME_CONFIG_VERSION);
+    if (editingDefaults)
+        mkdir(DEFAULTS_PATH, 777);
+    else
+        toSave.setValue(GAME_CONFIG_VERSION_KEY, GAME_CONFIG_VERSION);
     toSave.save(gameConfigPath.c_str());
 }
 
@@ -999,6 +1030,21 @@ int GuiGamesView::lua_openGameConfig(lua_State* L) {
     } catch (std::out_of_range& e) {
         return luaL_error(L, "Can't find game at index %u", idx);
     }
+
+    return 0;
+}
+
+int GuiGamesView::lua_openDefaultsConfig(lua_State* L) {
+    int argc = lua_gettop(L);
+    if (argc != 0) {
+        return luaL_error(L, "wrong number of arguments");
+    }
+
+    lua_getfield(L, LUA_REGISTRYINDEX, "this");
+    GuiGamesView* thisView = (GuiGamesView*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    thisView->openDefaultsConfig();
 
     return 0;
 }
