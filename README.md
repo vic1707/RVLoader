@@ -89,6 +89,7 @@ The UI is pretty simple, though still in development. Basic controls are:
  - `DPad` or `left analog stick` to move through the different games
  - `A` to boot a game
  - `B` (or `1` on a Wiimote) to open the per-game configuration menu
+ - `X` (Gamecube controller) to edit the default settings of the current games list (GC, Wii, VC or channels)
  - `C-Stick` (or `Z+DPad`, or `B+DPad` on Wiimote) to switch between the different game menus (GC, Wii, homebrew, ...). Simply move the C-Stick and a selector wheel will show up. Holding the C-Stick in a position for a couple of seconds will confirm the selection. In case you are using a Wiimote, hold the B button and move the DPad to simulate the C-Stick movements. You can also use the right stick on a Classic Controller or the Nunchuk stick while holding the C button.
 
 ### Key Combinations
@@ -163,10 +164,10 @@ Covers are 160px × 224px PNG files and need to be named the same as the game ID
 Each game's settings are resolved in three layers, each one overriding the previous:
 
  1. RVLoader's built-in defaults
- 2. An optional per-media defaults file on your USB drive
+ 2. The per-media defaults, edited by pressing `X` in a games list or by hand in a file on your USB drive
  3. The game's own settings, saved from the per-game configuration menu in `/rvloader/configs/<GAMEID>.cfg`
 
-The per-media defaults files are plain text and are never created or overwritten by RVLoader:
+The per-media defaults are stored as plain text files:
 
 ```
 USB://
@@ -185,6 +186,8 @@ Each line is `Setting name = value`, using the same names as the per-game config
 Enable Bluetooth = 1
 Enable Cheats = 1
 ```
+
+Saving from the `X` menu rewrites the file with only the settings that differ from the built-in defaults, so comments you added by hand are not kept.
 
 A game's own config file only stores the settings that differ from the defaults it inherits. Changing a defaults file therefore applies to every game that wasn't explicitly set to something else.
 

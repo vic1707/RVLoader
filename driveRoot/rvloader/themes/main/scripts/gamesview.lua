@@ -6,10 +6,12 @@ require 'scripts/gc+map'
 require 'scripts/topbarcmd'
 
 menuSystem = MenuSystem()
+defaultsMenuSystem = MenuSystem()
 cheatsMenuSystem = MenuSystem()
 
 function init()
     showingGameConfig = false
+    showingDefaultsConfig = false
     showingGameCheats = false
     showingGC2Wiimote = false
     showingGCPMapping = false
@@ -53,175 +55,19 @@ function init()
     SETTINGS_WIN_HEIGHT = 300
     SETTINGS_SIDE_MARGIN = 16
 
-    if GamesView.getGamesType() == GamesView.gameType.GC_GAME then
-        menuSystem:addYesNoEntry("Force progressive", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Force widescreen", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Force RVL-DD stretching", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Native SI", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Video mode", false)
-        menuSystem:addEntryOption("Auto", GamesView.nintendont.VIDEO_AUTO)
-        menuSystem:addEntryOption("NTSC", GamesView.nintendont.VIDEO_NTSC)
-        menuSystem:addEntryOption("PAL50", GamesView.nintendont.VIDEO_PAL50)
-        menuSystem:addEntryOption("PAL60", GamesView.nintendont.VIDEO_PAL60)
-        menuSystem:addEntryOption("MPAL", GamesView.nintendont.VIDEO_MPAL)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Language", false)
-        menuSystem:addEntryOption("Auto", GamesView.nintendont.LANG_AUTO)
-        menuSystem:addEntryOption("English", GamesView.nintendont.LANG_ENGLISH)
-        menuSystem:addEntryOption("German", GamesView.nintendont.LANG_GERMAN)
-        menuSystem:addEntryOption("French", GamesView.nintendont.LANG_FRENCH)
-        menuSystem:addEntryOption("Spanish", GamesView.nintendont.LANG_SPANISH)
-        menuSystem:addEntryOption("Italian", GamesView.nintendont.LANG_ITALIAN)
-        menuSystem:addEntryOption("Dutch", GamesView.nintendont.LANG_DUTCH)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Memory Card Emulation", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Max Pads", false)
-        menuSystem:addRangeToOptions(1, 4, 1)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Video Width", false)
-        menuSystem:addEntryOption("Auto", 0)
-        menuSystem:addRangeToOptions(640, 720, 1)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        if Gcp.isV2() then
-            menuSystem:addEntry("Configure GC+2.0 map", false)
-            menuSystem:setEntrySelectAction(activateGCPMapping)
-        end
-    elseif GamesView.getGamesType() == GamesView.gameType.WII_GAME then
-        menuSystem:addEntry("Enable WiFi", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.WIFI_AUTO)
-        menuSystem:addEntryOption("Yes", GamesView.hiidra.WIFI_ON)
-        menuSystem:addEntryOption("No", GamesView.hiidra.WIFI_OFF)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addYesNoEntry("Enable Bluetooth", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Enable USB saves", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Enable GC2Wiimote", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Configure GC2Wiimote", false)
-        menuSystem:setEntrySelectAction(activateGC2WMapping)
-        menuSystem:addYesNoEntry("Patch MX chip", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("PADRead Mode", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.PADREAD_AUTO)
-        menuSystem:addEntryOption("Bypass", GamesView.hiidra.PADREAD_BYPASS)
-        menuSystem:addEntryOption("Redirect", GamesView.hiidra.PADREAD_REDIRECT)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Deflicker Mode", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.DEFLICKER_AUTO)
-        menuSystem:addEntryOption("OFF (Safe)", GamesView.hiidra.DEFLICKER_OFF)
-        menuSystem:addEntryOption("OFF (Extended)", GamesView.hiidra.DEFLICKER_OFF_EXTENDED)
-        menuSystem:addEntryOption("ON (Low)", GamesView.hiidra.DEFLICKER_ON_LOW)
-        menuSystem:addEntryOption("ON (Medium)", GamesView.hiidra.DEFLICKER_ON_MEDIUM)
-        menuSystem:addEntryOption("ON (High)", GamesView.hiidra.DEFLICKER_ON_HIGH)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Cheats Hooktype", false)
-        menuSystem:addEntryOption("VBI", GamesView.hiidra.HOOKTYPE_VBI)
-        menuSystem:addEntryOption("KPADRead", GamesView.hiidra.HOOKTYPE_KPADRead)
-        menuSystem:addEntryOption("Joypad", GamesView.hiidra.HOOKTYPE_Joypad)
-        menuSystem:addEntryOption("GXDraw", GamesView.hiidra.HOOKTYPE_GXDraw)
-        menuSystem:addEntryOption("GXFlush", GamesView.hiidra.HOOKTYPE_GXFlush)
-        menuSystem:addEntryOption("OSSleepThread", GamesView.hiidra.HOOKTYPE_OSSleepThread)
-        menuSystem:addEntryOption("AXNextFrame", GamesView.hiidra.HOOKTYPE_AXNextFrame)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Configure cheats", false)
-        menuSystem:setEntrySelectAction(activateCheatsConfig)
-    elseif GamesView.getGamesType() == GamesView.gameType.WII_CHANNEL then
-        menuSystem:addEntry("Enable WiFi", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.WIFI_AUTO)
-        menuSystem:addEntryOption("Yes", GamesView.hiidra.WIFI_ON)
-        menuSystem:addEntryOption("No", GamesView.hiidra.WIFI_OFF)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addYesNoEntry("Enable Bluetooth", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Enable GC2Wiimote", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Configure GC2Wiimote", false)
-        menuSystem:setEntrySelectAction(activateGC2WMapping)
-        menuSystem:addYesNoEntry("Patch MX chip", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("PADRead Mode", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.PADREAD_AUTO)
-        menuSystem:addEntryOption("Bypass", GamesView.hiidra.PADREAD_BYPASS)
-        menuSystem:addEntryOption("Redirect", GamesView.hiidra.PADREAD_REDIRECT)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Deflicker Mode", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.DEFLICKER_AUTO)
-        menuSystem:addEntryOption("OFF (Safe)", GamesView.hiidra.DEFLICKER_OFF)
-        menuSystem:addEntryOption("OFF (Extended)", GamesView.hiidra.DEFLICKER_OFF_EXTENDED)
-        menuSystem:addEntryOption("ON (Low)", GamesView.hiidra.DEFLICKER_ON_LOW)
-        menuSystem:addEntryOption("ON (Medium)", GamesView.hiidra.DEFLICKER_ON_MEDIUM)
-        menuSystem:addEntryOption("ON (High)", GamesView.hiidra.DEFLICKER_ON_HIGH)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Cheats Hooktype", false)
-        menuSystem:addEntryOption("VBI", GamesView.hiidra.HOOKTYPE_VBI)
-        menuSystem:addEntryOption("KPADRead", GamesView.hiidra.HOOKTYPE_KPADRead)
-        menuSystem:addEntryOption("Joypad", GamesView.hiidra.HOOKTYPE_Joypad)
-        menuSystem:addEntryOption("GXDraw", GamesView.hiidra.HOOKTYPE_GXDraw)
-        menuSystem:addEntryOption("GXFlush", GamesView.hiidra.HOOKTYPE_GXFlush)
-        menuSystem:addEntryOption("OSSleepThread", GamesView.hiidra.HOOKTYPE_OSSleepThread)
-        menuSystem:addEntryOption("AXNextFrame", GamesView.hiidra.HOOKTYPE_AXNextFrame)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Configure cheats", false)
-        menuSystem:setEntrySelectAction(activateCheatsConfig)
-    elseif GamesView.getGamesType() == GamesView.gameType.WII_VC then
-        menuSystem:addEntry("Enable WiFi", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.WIFI_AUTO)
-        menuSystem:addEntryOption("Yes", GamesView.hiidra.WIFI_ON)
-        menuSystem:addEntryOption("No", GamesView.hiidra.WIFI_OFF)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addYesNoEntry("Enable Bluetooth", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addYesNoEntry("Enable GC2Wiimote", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Configure GC2Wiimote", false)
-        menuSystem:setEntrySelectAction(activateGC2WMapping)
-        menuSystem:addYesNoEntry("Patch MX chip", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("PADRead Mode", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.PADREAD_AUTO)
-        menuSystem:addEntryOption("Bypass", GamesView.hiidra.PADREAD_BYPASS)
-        menuSystem:addEntryOption("Redirect", GamesView.hiidra.PADREAD_REDIRECT)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Deflicker Mode", false)
-        menuSystem:addEntryOption("Auto", GamesView.hiidra.DEFLICKER_AUTO)
-        menuSystem:addEntryOption("OFF (Safe)", GamesView.hiidra.DEFLICKER_OFF)
-        menuSystem:addEntryOption("OFF (Extended)", GamesView.hiidra.DEFLICKER_OFF_EXTENDED)
-        menuSystem:addEntryOption("ON (Low)", GamesView.hiidra.DEFLICKER_ON_LOW)
-        menuSystem:addEntryOption("ON (Medium)", GamesView.hiidra.DEFLICKER_ON_MEDIUM)
-        menuSystem:addEntryOption("ON (High)", GamesView.hiidra.DEFLICKER_ON_HIGH)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
-        menuSystem:addEntry("Cheats Hooktype", false)
-        menuSystem:addEntryOption("VBI", GamesView.hiidra.HOOKTYPE_VBI)
-        menuSystem:addEntryOption("KPADRead", GamesView.hiidra.HOOKTYPE_KPADRead)
-        menuSystem:addEntryOption("Joypad", GamesView.hiidra.HOOKTYPE_Joypad)
-        menuSystem:addEntryOption("GXDraw", GamesView.hiidra.HOOKTYPE_GXDraw)
-        menuSystem:addEntryOption("GXFlush", GamesView.hiidra.HOOKTYPE_GXFlush)
-        menuSystem:addEntryOption("OSSleepThread", GamesView.hiidra.HOOKTYPE_OSSleepThread)
-        menuSystem:addEntryOption("AXNextFrame", GamesView.hiidra.HOOKTYPE_AXNextFrame)
-        menuSystem:setEntryIncreaseAction(menuSystem.increaseEntryValue)
-        menuSystem:setEntryDecreaseAction(menuSystem.decreaseEntryValue)
-        menuSystem:addEntry("Configure cheats", false)
-        menuSystem:setEntrySelectAction(activateCheatsConfig)
-    end
+    buildConfigMenu(menuSystem, false)
+    buildConfigMenu(defaultsMenuSystem, true)
 
     fonts = {}
     fonts[16] = Gfx.loadFont("assets/NotoSansJP-Regular.otf", 16)
     fonts[20] = Gfx.loadFont("assets/NotoSansJP-Regular.otf", 20)
 
-    menuSystem.font = fonts[SETTING_FONT_SIZE]
-    menuSystem.lineHeight = SETTING_EL_HEIGHT
-    menuSystem.columnWidth = SETTINGS_WIN_WIDTH
-    menuSystem.sideMargin = SETTINGS_SIDE_MARGIN
+    for _, menu in ipairs({menuSystem, defaultsMenuSystem}) do
+        menu.font = fonts[SETTING_FONT_SIZE]
+        menu.lineHeight = SETTING_EL_HEIGHT
+        menu.columnWidth = SETTINGS_WIN_WIDTH
+        menu.sideMargin = SETTINGS_SIDE_MARGIN
+    end
 
     cheatsMenuSystem.font = fonts[SETTING_FONT_SIZE]
     cheatsMenuSystem.lineHeight = SETTING_EL_HEIGHT
@@ -231,6 +77,183 @@ function init()
 
     initGC2WiimoteConf()
     initGCPMapConf()
+end
+
+--Fill a settings menu with the entries of the current games type.
+--forDefaults hides the entries that only make sense for a single game.
+function buildConfigMenu(menu, forDefaults)
+    if GamesView.getGamesType() == GamesView.gameType.GC_GAME then
+        menu:addYesNoEntry("Force progressive", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Force widescreen", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Force RVL-DD stretching", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Native SI", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("Video mode", false)
+        menu:addEntryOption("Auto", GamesView.nintendont.VIDEO_AUTO)
+        menu:addEntryOption("NTSC", GamesView.nintendont.VIDEO_NTSC)
+        menu:addEntryOption("PAL50", GamesView.nintendont.VIDEO_PAL50)
+        menu:addEntryOption("PAL60", GamesView.nintendont.VIDEO_PAL60)
+        menu:addEntryOption("MPAL", GamesView.nintendont.VIDEO_MPAL)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addEntry("Language", false)
+        menu:addEntryOption("Auto", GamesView.nintendont.LANG_AUTO)
+        menu:addEntryOption("English", GamesView.nintendont.LANG_ENGLISH)
+        menu:addEntryOption("German", GamesView.nintendont.LANG_GERMAN)
+        menu:addEntryOption("French", GamesView.nintendont.LANG_FRENCH)
+        menu:addEntryOption("Spanish", GamesView.nintendont.LANG_SPANISH)
+        menu:addEntryOption("Italian", GamesView.nintendont.LANG_ITALIAN)
+        menu:addEntryOption("Dutch", GamesView.nintendont.LANG_DUTCH)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Memory Card Emulation", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("Max Pads", false)
+        menu:addRangeToOptions(1, 4, 1)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addEntry("Video Width", false)
+        menu:addEntryOption("Auto", 0)
+        menu:addRangeToOptions(640, 720, 1)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        if Gcp.isV2() then
+            menu:addEntry("Configure GC+2.0 map", false)
+            menu:setEntrySelectAction(activateGCPMapping)
+        end
+    elseif GamesView.getGamesType() == GamesView.gameType.WII_GAME then
+        menu:addEntry("Enable WiFi", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.WIFI_AUTO)
+        menu:addEntryOption("Yes", GamesView.hiidra.WIFI_ON)
+        menu:addEntryOption("No", GamesView.hiidra.WIFI_OFF)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addYesNoEntry("Enable Bluetooth", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Enable USB saves", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Enable GC2Wiimote", false, GamesView.config.YES, GamesView.config.NO)
+        if not forDefaults then
+            menu:addEntry("Configure GC2Wiimote", false)
+            menu:setEntrySelectAction(activateGC2WMapping)
+        end
+        menu:addYesNoEntry("Patch MX chip", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("PADRead Mode", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.PADREAD_AUTO)
+        menu:addEntryOption("Bypass", GamesView.hiidra.PADREAD_BYPASS)
+        menu:addEntryOption("Redirect", GamesView.hiidra.PADREAD_REDIRECT)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addEntry("Deflicker Mode", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.DEFLICKER_AUTO)
+        menu:addEntryOption("OFF (Safe)", GamesView.hiidra.DEFLICKER_OFF)
+        menu:addEntryOption("OFF (Extended)", GamesView.hiidra.DEFLICKER_OFF_EXTENDED)
+        menu:addEntryOption("ON (Low)", GamesView.hiidra.DEFLICKER_ON_LOW)
+        menu:addEntryOption("ON (Medium)", GamesView.hiidra.DEFLICKER_ON_MEDIUM)
+        menu:addEntryOption("ON (High)", GamesView.hiidra.DEFLICKER_ON_HIGH)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("Cheats Hooktype", false)
+        menu:addEntryOption("VBI", GamesView.hiidra.HOOKTYPE_VBI)
+        menu:addEntryOption("KPADRead", GamesView.hiidra.HOOKTYPE_KPADRead)
+        menu:addEntryOption("Joypad", GamesView.hiidra.HOOKTYPE_Joypad)
+        menu:addEntryOption("GXDraw", GamesView.hiidra.HOOKTYPE_GXDraw)
+        menu:addEntryOption("GXFlush", GamesView.hiidra.HOOKTYPE_GXFlush)
+        menu:addEntryOption("OSSleepThread", GamesView.hiidra.HOOKTYPE_OSSleepThread)
+        menu:addEntryOption("AXNextFrame", GamesView.hiidra.HOOKTYPE_AXNextFrame)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        if not forDefaults then
+            menu:addEntry("Configure cheats", false)
+            menu:setEntrySelectAction(activateCheatsConfig)
+        end
+    elseif GamesView.getGamesType() == GamesView.gameType.WII_CHANNEL then
+        menu:addEntry("Enable WiFi", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.WIFI_AUTO)
+        menu:addEntryOption("Yes", GamesView.hiidra.WIFI_ON)
+        menu:addEntryOption("No", GamesView.hiidra.WIFI_OFF)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addYesNoEntry("Enable Bluetooth", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Enable GC2Wiimote", false, GamesView.config.YES, GamesView.config.NO)
+        if not forDefaults then
+            menu:addEntry("Configure GC2Wiimote", false)
+            menu:setEntrySelectAction(activateGC2WMapping)
+        end
+        menu:addYesNoEntry("Patch MX chip", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("PADRead Mode", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.PADREAD_AUTO)
+        menu:addEntryOption("Bypass", GamesView.hiidra.PADREAD_BYPASS)
+        menu:addEntryOption("Redirect", GamesView.hiidra.PADREAD_REDIRECT)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addEntry("Deflicker Mode", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.DEFLICKER_AUTO)
+        menu:addEntryOption("OFF (Safe)", GamesView.hiidra.DEFLICKER_OFF)
+        menu:addEntryOption("OFF (Extended)", GamesView.hiidra.DEFLICKER_OFF_EXTENDED)
+        menu:addEntryOption("ON (Low)", GamesView.hiidra.DEFLICKER_ON_LOW)
+        menu:addEntryOption("ON (Medium)", GamesView.hiidra.DEFLICKER_ON_MEDIUM)
+        menu:addEntryOption("ON (High)", GamesView.hiidra.DEFLICKER_ON_HIGH)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("Cheats Hooktype", false)
+        menu:addEntryOption("VBI", GamesView.hiidra.HOOKTYPE_VBI)
+        menu:addEntryOption("KPADRead", GamesView.hiidra.HOOKTYPE_KPADRead)
+        menu:addEntryOption("Joypad", GamesView.hiidra.HOOKTYPE_Joypad)
+        menu:addEntryOption("GXDraw", GamesView.hiidra.HOOKTYPE_GXDraw)
+        menu:addEntryOption("GXFlush", GamesView.hiidra.HOOKTYPE_GXFlush)
+        menu:addEntryOption("OSSleepThread", GamesView.hiidra.HOOKTYPE_OSSleepThread)
+        menu:addEntryOption("AXNextFrame", GamesView.hiidra.HOOKTYPE_AXNextFrame)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        if not forDefaults then
+            menu:addEntry("Configure cheats", false)
+            menu:setEntrySelectAction(activateCheatsConfig)
+        end
+    elseif GamesView.getGamesType() == GamesView.gameType.WII_VC then
+        menu:addEntry("Enable WiFi", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.WIFI_AUTO)
+        menu:addEntryOption("Yes", GamesView.hiidra.WIFI_ON)
+        menu:addEntryOption("No", GamesView.hiidra.WIFI_OFF)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addYesNoEntry("Enable Bluetooth", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addYesNoEntry("Enable GC2Wiimote", false, GamesView.config.YES, GamesView.config.NO)
+        if not forDefaults then
+            menu:addEntry("Configure GC2Wiimote", false)
+            menu:setEntrySelectAction(activateGC2WMapping)
+        end
+        menu:addYesNoEntry("Patch MX chip", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("PADRead Mode", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.PADREAD_AUTO)
+        menu:addEntryOption("Bypass", GamesView.hiidra.PADREAD_BYPASS)
+        menu:addEntryOption("Redirect", GamesView.hiidra.PADREAD_REDIRECT)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addEntry("Deflicker Mode", false)
+        menu:addEntryOption("Auto", GamesView.hiidra.DEFLICKER_AUTO)
+        menu:addEntryOption("OFF (Safe)", GamesView.hiidra.DEFLICKER_OFF)
+        menu:addEntryOption("OFF (Extended)", GamesView.hiidra.DEFLICKER_OFF_EXTENDED)
+        menu:addEntryOption("ON (Low)", GamesView.hiidra.DEFLICKER_ON_LOW)
+        menu:addEntryOption("ON (Medium)", GamesView.hiidra.DEFLICKER_ON_MEDIUM)
+        menu:addEntryOption("ON (High)", GamesView.hiidra.DEFLICKER_ON_HIGH)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        menu:addYesNoEntry("Enable Cheats", false, GamesView.config.YES, GamesView.config.NO)
+        menu:addEntry("Cheats Hooktype", false)
+        menu:addEntryOption("VBI", GamesView.hiidra.HOOKTYPE_VBI)
+        menu:addEntryOption("KPADRead", GamesView.hiidra.HOOKTYPE_KPADRead)
+        menu:addEntryOption("Joypad", GamesView.hiidra.HOOKTYPE_Joypad)
+        menu:addEntryOption("GXDraw", GamesView.hiidra.HOOKTYPE_GXDraw)
+        menu:addEntryOption("GXFlush", GamesView.hiidra.HOOKTYPE_GXFlush)
+        menu:addEntryOption("OSSleepThread", GamesView.hiidra.HOOKTYPE_OSSleepThread)
+        menu:addEntryOption("AXNextFrame", GamesView.hiidra.HOOKTYPE_AXNextFrame)
+        menu:setEntryIncreaseAction(menu.increaseEntryValue)
+        menu:setEntryDecreaseAction(menu.decreaseEntryValue)
+        if not forDefaults then
+            menu:addEntry("Configure cheats", false)
+            menu:setEntrySelectAction(activateCheatsConfig)
+        end
+    end
 end
 
 function activateGCPMapping(index)
@@ -263,20 +286,20 @@ function draw(onFocus)
     end
 
     if showingGCPMapping then
-        topBarSetText("GC+2.0 map: " .. GamesView.getGameName(selectedGame))
+        if showingDefaultsConfig then
+            topBarSetText("GC+2.0 map: GC defaults")
+        else
+            topBarSetText("GC+2.0 map: " .. GamesView.getGameName(selectedGame))
+        end
         drawGCPMapConf()
         return
     end
 
     if onFocus then
-        if GamesView.getGamesType() == GamesView.gameType.GC_GAME then
-            topBarSetText("GC games")
-        elseif GamesView.getGamesType() == GamesView.gameType.WII_GAME then
-            topBarSetText("Wii games")
-        elseif GamesView.getGamesType() == GamesView.gameType.WII_VC then
-            topBarSetText("Wii VC")
-        elseif GamesView.getGamesType() == GamesView.gameType.WII_CHANNEL then
-            topBarSetText("Wii channels")
+        if showingDefaultsConfig then
+            topBarSetText("Defaults: " .. getGamesTypeName())
+        else
+            topBarSetText(getGamesTypeName())
         end
     end
 
@@ -337,6 +360,11 @@ function draw(onFocus)
         tempX = tempX + 16
     end
 
+    Gfx.drawImage(button_x_icon, tempX, 0)
+    tempX = tempX + 40
+    tempX = tempX + Gfx.print(fonts[SETTING_FONT_SIZE], tempX, SETTING_EL_HEIGHT / 2, "Defaults")
+    tempX = tempX + 16
+
     Gfx.setFontVerticalAlignment(fonts[SETTING_FONT_SIZE], oldAlignment)
     Gfx.popScissorBox()
     Gfx.popMatrix()
@@ -344,7 +372,9 @@ function draw(onFocus)
     if showingGameCheats then
         drawGameCheats(onFocus)
     elseif showingGameConfig then
-        drawGameConfig(onFocus)
+        drawConfigMenu(menuSystem, onFocus)
+    elseif showingDefaultsConfig then
+        drawConfigMenu(defaultsMenuSystem, onFocus)
     end
 end
 
@@ -379,11 +409,26 @@ function handleInputs(onFocus)
             handleGameCheats()
             return
         elseif showingGameConfig then
-            handleGameConfig()
+            if handleConfigMenu(menuSystem) then
+                showingGameConfig = false
+            end
+            return
+        elseif showingDefaultsConfig then
+            if handleConfigMenu(defaultsMenuSystem) then
+                showingDefaultsConfig = false
+            end
             return
         end
 
         local down = Pad.gendown(0)
+
+        --Edit the default settings of this games type (works even without games)
+        if down.BUTTON_X then
+            GamesView.openDefaultsConfig()
+            openConfigMenu(defaultsMenuSystem)
+            showingDefaultsConfig = true
+            return
+        end
         local curColumn = 0
         local curRow = 0
 
@@ -466,11 +511,7 @@ function handleInputs(onFocus)
             --Show game config if requested
             if down.BUTTON_B then
                 GamesView.openGameConfig(selectedGame)
-                configOptions = menuSystem:getEntriesWithOptions()
-                for i = 1, #configOptions do
-                    menuSystem:setEntryValue(configOptions[i], GamesView.getGameConfigValue(configOptions[i]))
-                end
-                menuSystem:reset()
+                openConfigMenu(menuSystem)
                 showingGameConfig = true
                 return
             end
@@ -484,7 +525,29 @@ function getDimensions()
     return {w, h}
 end
 
-function drawGameConfig(onFocus)
+function getGamesTypeName()
+    if GamesView.getGamesType() == GamesView.gameType.GC_GAME then
+        return "GC games"
+    elseif GamesView.getGamesType() == GamesView.gameType.WII_GAME then
+        return "Wii games"
+    elseif GamesView.getGamesType() == GamesView.gameType.WII_VC then
+        return "Wii VC"
+    elseif GamesView.getGamesType() == GamesView.gameType.WII_CHANNEL then
+        return "Wii channels"
+    end
+    return ""
+end
+
+--Load the values of the currently opened config (game or defaults) into a menu
+function openConfigMenu(menu)
+    local configOptions = menu:getEntriesWithOptions()
+    for i = 1, #configOptions do
+        menu:setEntryValue(configOptions[i], GamesView.getGameConfigValue(configOptions[i]))
+    end
+    menu:reset()
+end
+
+function drawConfigMenu(menu, onFocus)
     Gfx.pushMatrix()
     Gfx.identity()
     Gfx.pushIdentityScissorBox()
@@ -493,27 +556,28 @@ function drawGameConfig(onFocus)
     Gfx.pushScissorBox(SETTINGS_WIN_WIDTH, SETTINGS_WIN_HEIGHT)
     Gfx.drawRectangle(0, 0, SETTINGS_WIN_WIDTH, SETTINGS_WIN_HEIGHT, Gfx.RGBA8(0x2D, 0x2D, 0x2D, 0xB0))
 
-    menuSystem:printMenu(onFocus)
+    menu:printMenu(onFocus)
 
     Gfx.popScissorBox()
     Gfx.popScissorBox()
     Gfx.popMatrix()
 end
 
-function handleGameConfig()
+--Returns true once the menu has been closed and its values saved
+function handleConfigMenu(menu)
     local down = Pad.gendown(0)
 
     if down.BUTTON_B then
-        configOptions = menuSystem:getEntriesWithOptions()
+        local configOptions = menu:getEntriesWithOptions()
         for i = 1, #configOptions do
-            GamesView.setGameConfigValue(configOptions[i], menuSystem:getEntryValue(configOptions[i]))
+            GamesView.setGameConfigValue(configOptions[i], menu:getEntryValue(configOptions[i]))
         end
         GamesView.saveGameConfig()
-        showingGameConfig = false
-        return
+        return true
     end
 
-    menuSystem:handleInputs()
+    menu:handleInputs()
+    return false
 end
 
 function drawGameCheats(onFocus)

@@ -31,9 +31,11 @@ class GuiGamesView : public GuiLuaElement {
         Config gameOverrides; //Values set for the current game only
         Config gameConfig; //Effective settings: inheritedConfig merged with gameOverrides
         std::string gameConfigPath;
+        bool editingDefaults = false; //True when the media defaults are open instead of a game's settings
 
         void setGameConfigValue(const char* key, int val);
         void saveGameConfig();
+        void loadGCPMapFromConfig();
 
         Cheat cheatCodes;
 
@@ -220,6 +222,7 @@ class GuiGamesView : public GuiLuaElement {
         ~GuiGamesView();
 
         void openGameConfig(u32 idx);
+        void openDefaultsConfig();
         void openGameGC2WiimoteConfig(u32 idx);
         void loadDefaultGC2WiimoteConfig();
 
@@ -232,6 +235,7 @@ class GuiGamesView : public GuiLuaElement {
         static int lua_getGamesType(lua_State* L);
         static int lua_bootGame(lua_State* L);
         static int lua_openGameConfig(lua_State* L);
+        static int lua_openDefaultsConfig(lua_State* L);
         static int lua_saveGameConfig(lua_State* L);
         static int lua_setGameConfigValue(lua_State* L);
         static int lua_getGameConfigValue(lua_State* L);
