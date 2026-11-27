@@ -22,7 +22,13 @@ DCFlushRange:
     dcbf r0, r3
     addi r3, r3, 0x20
     bdnz 2b
-    sc
+    mfspr  r5, 1008      # HID0
+    ori    r6, r5, 8     # set ABE
+    mtspr  1008, r6
+    isync
+    sync
+    mtspr  1008, r5
+    isync
     blr
 
     .globl ICInvalidateRange
